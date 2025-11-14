@@ -1,0 +1,25 @@
+# Folder wyjœciowy dla kompilacji
+[Bb]in/
+[Oo]bj/
+
+# Powszechne pliki Visual Studio i .NET
+*.pdb
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vshost.*
+*.vspscc
+*.vssscc
+*.bak
+*.orig
+*.log
+
+# Dane bazy SQLite (z Twojego projektu)
+database.db
+database.db-shm
+database.db-wal
+
+# Pliki systemowe (opcjonalnie)
+.DS_Store # macOS
+Thumbs.db # Windows
