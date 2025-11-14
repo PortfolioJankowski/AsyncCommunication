@@ -18,24 +18,6 @@ services:
         hostname: "rabbit_cluster_2"
         environment:
             RABBITMQ_ERLANG_COOKIE: "supersecretcookie"
-        command:
-          - sh
-          - -c
-          - |
-              rabbitmq-server -detached
-              sleep 5
-              rabbitmqctl stop_app
-              rabbitmqctl reset
-              rabbitmqctl join_cluster rabbit@rabbit_cluster_1
-              rabbitmqctl start_app
-              tail -f /var/log/rabbitmq/*.log
 
-    microservice:
-        environment:
-            - ASPNETCORE_ENVIRONMENT=Development
-            - DOTNET_USE_POLLING_FILE_WATCHER=true
-            - DOTNET_WATCH_SUPPRESS_LAUNCH_BROWSER=true
-        depends_on:
-            - redis
-            - rabbit_cluster_2
-            - rabbit_cluster_1
+
+

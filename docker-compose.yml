@@ -1,25 +1,9 @@
-# Folder wyjœciowy dla kompilacji
-[Bb]in/
-[Oo]bj/
+services:
+    redis:
+        image: redis
 
-# Powszechne pliki Visual Studio i .NET
-*.pdb
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-*.vshost.*
-*.vspscc
-*.vssscc
-*.bak
-*.orig
-*.log
-
-# Dane bazy SQLite (z Twojego projektu)
-database.db
-database.db-shm
-database.db-wal
-
-# Pliki systemowe (opcjonalnie)
-.DS_Store # macOS
-Thumbs.db # Windows
+    rabbit_cluster_1: 
+        image: rabbitmq:4.2-management 
+    
+    rabbit_cluster_2: 
+        image: rabbitmq:4.2-management
