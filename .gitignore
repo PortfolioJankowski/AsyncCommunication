@@ -1,8 +1,14 @@
-# Folder wyjściowy dla kompilacji
+# Foldery generowane przez kompilację
 [Bb]in/
 [Oo]bj/
 
-# Powszechne pliki Visual Studio i .NET
+# Folder konfiguracyjny Visual Studio (ukryty)
+.vs/
+
+# Plik rozwiązania
+*.sln
+
+# Pliki i foldery generowane przez Visual Studio i .NET
 *.pdb
 *.suo
 *.user
@@ -14,6 +20,12 @@
 *.bak
 *.orig
 *.log
+
+# Pliki generowane przez narzędzia do pokrycia kodu (np. dotCover, Visual Studio Coverage)
+# Obejmuje również pliki *.cr (jeśli takie są używane do tymczasowych raportów)
+*.cr
+*.coverage
+*.coveragexml
 
 # Dane bazy SQLite (z Twojego projektu)
 database.db
