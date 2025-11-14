@@ -55,7 +55,7 @@ public class OutboxService(ILogger<OutboxService> logger, IServiceScopeFactory s
 
         scopeFactory.CreateScope();
         var dbRepository = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<IDbRepository>();
-        var blob = dbRepository.InsertData(Encoding.UTF8.GetBytes("Jakiś blob do zapisania w bazie"), props.CorrelationId);  //Zapisuje do tabeli i do outboxa!
+        var blob = dbRepository.InsertData(Encoding.UTF8.GetBytes("Jakiś blob do zapisania w bazie"), props.CorrelationId, props.ReplyTo);  //Zapisuje do tabeli i do outboxa!
         await _channel.BasicAckAsync(eventArgs.DeliveryTag, multiple: false);                           //Po zapisie w bazie dopiero potwierdzam
     }
 

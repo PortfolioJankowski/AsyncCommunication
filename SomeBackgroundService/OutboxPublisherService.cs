@@ -42,43 +42,40 @@ namespace SomeBackgroundService
 
         private async Task ProcessOutboxMessagesAsync(IDbRepository dbRepository)
         {
-            var blobIdToPublish = dbRepository.GetFromOutbox(); 
-            if (blobIdToPublish == Guid.Empty)
+            var outboxRecord = dbRepository.GetFromOutbox(); 
+            if (outboxRecord.Id == Guid.Empty)
             {
                 logger.LogDebug("Brak nowych wiadomości Outbox do wysłania.");
                 return;
             }
 
-            var blobData = dbRepository.GetDataBlob(blobIdToPublish);
+            var blobData = dbRepository.GetDataBlob(outboxRecord.Id);
             if (blobData == null)
             {
-                logger.LogWarning("Blob {Id} nie znaleziono, pomijam.", blobIdToPublish);
+                logger.LogWarning("Blob {Id} nie znaleziono, pomijam.", outboxRecord.Id);
                 return;
             }
 
-            // 3. WYSYŁKA DO RABBITMQ
             var props = new BasicProperties
             {
                 ContentType = "text/plain",
                 DeliveryMode = DeliveryModes.Persistent,
-                // KLUCZOWE: Użyjemy CorrelationId z tabeli Outbox, jeśli był zapisany, 
-                // ale tutaj wysyłamy ID Bloba jako treść odpowiedzi:
-                CorrelationId = dbRepository.GetCorrelationId(blobIdToPublish)
+                CorrelationId = outboxRecord.CorrelationId.ToString(),
+                ReplyTo = outboxRecord.ReplyTo
             };
 
-            // Treść wiadomości to Id nowo utworzonego bloba
-            var messageBody = Encoding.UTF8.GetBytes(blobIdToPublish.ToString());
+            var messageBody = Encoding.UTF8.GetBytes(outboxRecord.Payload.ToString());
 
             await _channel.BasicPublishAsync(
-                exchange: Stats.exchange_name,
-                routingKey: Stats.blob_responses_take_blob_key, // Używamy klucza dla odpowiedzi!
+                exchange: "", // jeśli chce wysłać bezpośrednio do kolejki Producenta (tej tymczasowej), to exchange jest puste a routingKey to nazwa tej kolejki
+                routingKey: outboxRecord.ReplyTo,
                 mandatory: false,
                 basicProperties: props,
                 body: messageBody);
 
-            logger.LogInformation("Opublikowano Id bloba {Id} do kolejki odpowiedzi.", blobIdToPublish);
+            logger.LogInformation("Opublikowano Id bloba {Id} do kolejki odpowiedzi.", outboxRecord.Id);
 
-             dbRepository.MarkOutboxAsProcessedAsync(blobIdToPublish);
+             dbRepository.MarkOutboxAsProcessedAsync(outboxRecord.Id);
         }
     }
 }
