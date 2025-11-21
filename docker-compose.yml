@@ -10,3 +10,10 @@ services:
 
     weather_service:
         build: ./WeatherForecastAPI
+
+    yarpapigateway:
+        image: ${DOCKER_REGISTRY-}yarpapigateway
+        build:
+          context: ReverseProxy/YarpApiGateway
+          dockerfile: Dockerfile
+

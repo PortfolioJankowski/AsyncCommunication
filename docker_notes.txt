@@ -1,0 +1,44 @@
+### Notatka: Docker, Porty i Konfiguracja w .NET
+
+Oto kluczowe rzeczy, o których warto pamiętać, pracując z Dockerem w kontekście aplikacji .NET.
+
+#### 1. Porty: Kontener vs Host
+
+Najważniejsze jest rozróżnienie między portem **wewnątrz kontenera** a portem **na Twoim komputerze (hoście)**.
+
+*   **Port kontenera:** To port, na którym nasłuchuje aplikacja *wewnątrz odizolowanego środowiska kontenera*. Wiele różnych kontenerów może nasłuchiwać na tym samym porcie (np. 8080), ponieważ każdy ma własną sieć.
+*   **Port hosta:** To port na Twoim fizycznym komputerze (np. `localhost:5001`), który "mapujesz" na port kontenera.
+
+**Mapowanie portów** w `docker-compose.yml` odbywa się w formacie `HOST:KONENER`.
+*Przykład:* `ports: - "5001:8080"`
+*   Żądanie wysłane na `localhost:5001` na Twoim komputerze...
+*   ...jest przekierowywane na port `8080` wewnątrz kontenera.
+
+#### 2. Relacja: `Dockerfile` vs `docker-compose.yml`
+
+Można o nich myśleć w następujący sposób:
+
+*   **`Dockerfile` to przepis na zbudowanie pojedynczego obrazu.**
+    *   Mówi, jak krok po kroku stworzyć obraz dla *jednej* usługi (np. skopiuj kod, zainstaluj zależności, uruchom aplikację).
+    *   Definiuje, **co jest w środku** kontenera.
+    *   Instrukcja `EXPOSE 8080` w tym pliku to tylko **sugestia/dokumentacja**, który port jest używany. Sama w sobie nie udostępnia portu na zewnątrz.
+
+*   **`docker-compose.yml` to plan orkiestracji dla całej aplikacji.**
+    *   Definiuje, jak wiele różnych usług (kontenerów) ma ze sobą współpracować.
+    *   Określa, **jak kontenery są uruchamiane i jak się komunikują**.
+    *   Zarządza takimi aspektami jak:
+        *   Budowanie obrazów na podstawie `Dockerfile` (`build: ...`).
+        *   Używanie gotowych obrazów (np. `image: redis`).
+        *   Tworzenie wspólnej sieci dla usług.
+        *   **Mapowanie portów** (`ports:`), czyli faktyczne udostępnianie aplikacji światu.
+        *   Podłączanie woluminów i ustawianie zmiennych środowiskowych.
+
+**Analogia:** `Dockerfile` to instrukcja budowy silnika. `docker-compose.yml` to schemat całego samochodu, który mówi, gdzie zamontować ten silnik, jak podłączyć koła (sieć) i gdzie umieścić kierownicę (mapowanie portów).
+
+#### 3. Rola `launchSettings.json`
+
+*   **To plik dla środowiska deweloperskiego Visual Studio.**
+    *   Jego głównym zadaniem jest konfiguracja tego, jak aplikacja jest uruchamiana **podczas pracy w Visual Studio** (np. po naciśnięciu F5).
+    *   Definiuje profile startowe, np. adres URL, który ma się otworzyć w przeglądarce (`applicationUrl`) czy zmienne środowiskowe na czas debugowania.
+
+*   **Kluczowa zasada:** Kiedy uruchamiasz kontenery za pomocą polecenia `docker-compose up` w terminalu, plik `launchSettings.json` **jest całkowicie ignorowany**. Liczy się tylko i wyłącznie konfiguracja z plików `docker-compose.yml` i `docker-compose.override.yml`. Visual Studio używa go do podpięcia swojego debuggera, ale sama konfiguracja uruchomienia kontenera leży po stronie Docker Compose.
